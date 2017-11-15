@@ -10,7 +10,7 @@
 #include <signal.h>
 #include <sys/signal.h>
 #include <errno.h>
-
+#include <stdint.h>
 
 #include "commands.h"
 #include "built_in.h"
@@ -93,6 +93,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 			{
 				is_back=1;
 				com[i].argv[t] = NULL;
+				break;
 				//printf("background command!\n");
 			}
 		}
@@ -101,8 +102,8 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	 pid = fork();
 	 if(pid == -1)
 	 {
-			perror("fork error");
-			exit(1);
+		perror("fork error");
+		exit(1);
 	 }
 	 else if(pid == 0)
 	 {			
@@ -126,12 +127,19 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 					dup2(pfd[0], STDIN_FILENO);
 			}
 		}
+
+		
+		if(is_back == 1)
+			printf("%jd\n",(intmax_t)getpid());
 		execv(com[i].argv[0],com[i].argv);
 		perror("exec error");
-		exit(1);
+		_exit(0);
 	 }
 	 else if(is_back == 0)
+	 {
+		printf("waiting...\n");
 		waitpid(pid,&status,WUNTRACED);
+	 }
    	 return 0;
     }
   }

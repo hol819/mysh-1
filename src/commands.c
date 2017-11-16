@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <sys/signal.h>
 #include <errno.h>
 #include <stdint.h>
 
@@ -46,7 +45,6 @@ static int is_built_in_command(const char* command_name)
  */
 int evaluate_command(int n_commands, struct single_command (*commands)[512])
 {
-
   if (n_commands > 0) {
     struct single_command* com = (*commands);
 
@@ -127,15 +125,28 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 					dup2(pfd[0], STDIN_FILENO);
 			}
 		}
-
-		
+		intmax_t PID = getpid();
+			
 		if(is_back == 1)
-			printf("%jd\n",(intmax_t)getpid());
-		execv(com[i].argv[0],com[i].argv);
-		perror("exec error");
-		_exit(0);
+			printf("%jd\n",PID);
+		
+                switch(fork())
+                {
+                        default:
+                        execv(com[i].argv[0],com[i].argv);
+                        perror("exec error");
+                        _exit(0);
+
+			case 0:
+				if(is_back == 1)
+				{
+                        		waitpid(pid,&status,WUNTRACED);
+                        		printf("%jd Done.\n",PID);
+				}
+				exit(0);
+		}
 	 }
-	 else if(is_back == 0)
+	 else if(pid != 0 && is_back == 0)
 	 {
 		printf("waiting...\n");
 		waitpid(pid,&status,WUNTRACED);

@@ -11,6 +11,8 @@ int main()
   char buf[8096];
 
   while (1) {
+    printf("[mysh]:");
+
     fgets(buf, 8096, stdin);
 
     struct single_command commands[512];

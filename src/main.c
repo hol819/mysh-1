@@ -1,18 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "commands.h"
 #include "built_in.h"
 #include "utils.h"
+
+void sig_handler( int signo)
+{
+	NULL;
+}
 
 int main()
 {
   char buf[8096];
 
   while (1) {
-    printf("[mysh]:");
+    
+    signal(SIGINT, SIG_IGN);
+    signal(SIGSTOP, SIG_IGN);
 
+    free_commands(n_commands, &commands);
+    printf("[mysh]:");
     fgets(buf, 8096, stdin);
 
     struct single_command commands[512];

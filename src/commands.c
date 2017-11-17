@@ -148,7 +148,6 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	 }
 	 else if(pid != 0 && is_back == 0)
 	 {
-		printf("waiting...\n");
 		waitpid(pid,&status,WUNTRACED);
 	 }
    	 return 0;
